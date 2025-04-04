@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import ContactForm from "@/components/forms/contact-form";
-import { MailIcon, MapPin, PhoneCall, Clock, ArrowUpRight } from "lucide-react";
+import { MailIcon, MapPin, PhoneCall, Clock, ArrowUpRight, Facebook } from "lucide-react";
 import { Fade, Slide } from "react-awesome-reveal";
 
 export default function Contact() {
@@ -47,8 +47,8 @@ export default function Contact() {
                     </div>
                     <div>
                       <p className="font-medium text-gray-700">Email</p>
-                      <Link href="mailto:dccpc@gmail.com" className="text-primary hover:underline flex items-center group">
-                        dccpc@gmail.com
+                      <Link href="mailto:dccpc.official@gmail.com" className="text-primary hover:underline flex items-center group">
+                        dccpc.official@gmail.com
                         <ArrowUpRight className="ml-1 w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                     </div>
@@ -60,8 +60,25 @@ export default function Contact() {
                     </div>
                     <div>
                       <p className="font-medium text-gray-700">Phone</p>
-                      <Link href="tel:+011010101" className="text-primary hover:underline flex items-center group">
-                        +880011010101
+                      <Link href="tel:+8801790616537" className="text-primary hover:underline flex items-center group">
+                        +8801790616537
+                        <ArrowUpRight className="ml-1 w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-full text-primary">
+                      <Facebook size={20} />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-700">Official Facebook Page</p>
+                      <Link 
+                        href="https://www.facebook.com/dccProgrammingClub" 
+                        target="_blank"
+                        className="text-primary hover:underline flex items-center group"
+                      >
+                        DCC Programming Club
                         <ArrowUpRight className="ml-1 w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                     </div>
@@ -74,8 +91,7 @@ export default function Contact() {
                     <div>
                       <p className="font-medium text-gray-700">Club Hours</p>
                       <p className="text-gray-600">
-                        Monday - Friday: 10:00 AM - 5:00 PM<br />
-                        Saturday: 10:00 AM - 2:00 PM
+                        Sunday - Thursday ( 10:00 AM - 4:00 PM )
                       </p>
                     </div>
                   </div>
@@ -87,6 +103,7 @@ export default function Contact() {
                     <div>
                       <p className="font-medium text-gray-700">Address</p>
                       <p className="text-gray-600">
+                        Club Room: 210, Professor Md. Hafiz Uddin Building<br />
                         Dhaka City College Campus - 2<br />
                         60 Rd 3A, Dhaka 1205
                       </p>
