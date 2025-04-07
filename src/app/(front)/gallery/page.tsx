@@ -1,8 +1,7 @@
-// src/app/(front)/gallery/page.tsx
 'use client'
 
 import Link from "next/link";
-import Image from "next/image"; // Component from next/image
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Camera, CalendarIcon, ArrowRight, ImageIcon, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,12 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
-  // DialogTrigger, // <--- No longer needed inside the loop
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Fade, Zoom } from "react-awesome-reveal";
-import { Image as ImageType, Result } from "@/lib/types"; // Type aliased to ImageType
+import { Image as ImageType, Result } from "@/lib/types";
 
 export default function GalleryPage() {
   const [galleryData, setGalleryData] = useState<{ [year: string]: ImageType[] }>({});
