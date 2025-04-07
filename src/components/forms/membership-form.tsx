@@ -20,7 +20,7 @@ const problemSolvingExperienceLevels: string[] = [
   'Newbie ( 0 < Problem Solved <= 100 )',
   'Beginner ( 1 * 10 ^ 2 < Problem Solved <= 3*10^2  + 50)',
   'Intermediate (  0b101011110 < Problem Solved <= 0b10000000000  )',
-  'Advance ( −999998983  mod (10^9 + 7) < Problem Solved )'
+  'Advance ( -999998983  mod (10^9 + 7) < Problem Solved )'
 ];
 
 export default function MembershipForm() {
@@ -184,32 +184,32 @@ export default function MembershipForm() {
           
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div className="lg:col-span-3">
-              <FormField render={({field}) => (
-                <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Education Level*</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-2 mt-1"
-                    >
-                      <div className="flex items-center space-x-2 bg-white p-3 rounded-md border border-gray-200 hover:border-primary/50 transition-colors">
-                        <RadioGroupItem value="CSE" id="cse" className="text-primary" />
-                        <FormLabel htmlFor="cse" className="font-normal cursor-pointer">
-                          Computer Science and Engineering
-                        </FormLabel>
-                      </div>
-                      <div className="flex items-center space-x-2 bg-white p-3 rounded-md border border-gray-200 hover:border-primary/50 transition-colors">
-                        <RadioGroupItem value="HSC" id="hsc" className="text-primary" />
-                        <FormLabel htmlFor="hsc" className="font-normal cursor-pointer">
-                          Higher Secondary Certificate
-                        </FormLabel>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage className="text-xs mt-1" />
-                </FormItem>
-              )} name="education"/>
+            <FormField render={({field}) => (
+              <FormItem>
+                <FormLabel className="text-gray-700 font-medium">Education Level*</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    className="flex flex-col space-y-2 mt-1"
+                  >
+                    <div className="flex items-center space-x-2 bg-white p-3 rounded-md border border-gray-200 hover:border-primary/50 transition-colors">
+                      <RadioGroupItem value="CSE" id="cse" className="text-primary" />
+                      <FormLabel htmlFor="cse" className="font-normal cursor-pointer">
+                        Computer Science and Engineering
+                      </FormLabel>
+                    </div>
+                    <div className="flex items-center space-x-2 bg-white p-3 rounded-md border border-gray-200 hover:border-primary/50 transition-colors">
+                      <RadioGroupItem value="HSC" id="hsc" className="text-primary" />
+                      <FormLabel htmlFor="hsc" className="font-normal cursor-pointer">
+                        Higher Secondary Certificate
+                      </FormLabel>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage className="text-xs mt-1" />
+              </FormItem>
+            )} name="education"/>
             </div>
             
             <div className="lg:col-span-2 grid grid-cols-2 gap-4">
