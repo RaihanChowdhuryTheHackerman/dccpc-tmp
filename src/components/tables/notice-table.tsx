@@ -1,3 +1,4 @@
+// File: src/components/tables/notice-table.tsx
 'use client'
 
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
@@ -24,6 +25,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const columns: ColumnDef<Notice>[] = [
     {
@@ -101,7 +103,11 @@ const NoticeModal = ({notice, children}: { notice: Notice, children?: React.Reac
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="max-w-md sm:max-w-lg">
+            <DialogContent 
+                scrollable 
+                maxHeight="400px" 
+                className="max-w-md sm:max-w-lg"
+            >
                 <DialogHeader>
                     <DialogTitle className="text-primary flex items-center gap-3">
                         <FileText className="w-6 h-6" />
@@ -109,7 +115,7 @@ const NoticeModal = ({notice, children}: { notice: Notice, children?: React.Reac
                     </DialogTitle>
                     <div className="mt-2 space-y-4">
                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                            <div className="text-gray-700 text-sm">
+                            <div className="text-gray-700 text-sm break-words overflow-wrap-break-word">
                                 {notice.details || 'No additional details provided.'}
                             </div>
                         </div>
