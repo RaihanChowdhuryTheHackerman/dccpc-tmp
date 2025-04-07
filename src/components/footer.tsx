@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 text-center">
         <div className="flex flex-col items-center justify-center">
           {/* Add a white circular background for the logo */}
-          <div className="bg-white p-2 rounded-full mb-4">
+          <div className="bg-white rounded-full mb-4">
             <Image
               src={Logo}
               className="w-[80px]"
