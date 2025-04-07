@@ -21,13 +21,6 @@ interface Member {
     ordering: number;
 }
 
-// Interface for the expected paginated API response
-interface ApiResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    results: Member[];
-}
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const PANEL_ENDPOINT = `${API_BASE_URL}/club/panel-members/`;
@@ -57,7 +50,7 @@ export default function PanelPage() {
 
                 if (!response.ok) {
                     let errorBody = null;
-                    try { errorBody = await response.json(); } catch (e) { /* ignore if body isn't json */ }
+                    try { errorBody = await response.json(); } catch (e) { console.log("Failed to parse error body:", e); }
                     console.error("API Error Response:", response.status, errorBody);
                     throw new Error(`Failed to fetch members: ${response.status} ${response.statusText}${errorBody?.detail ? ` - ${errorBody.detail}` : ''}`);
                 }
@@ -151,7 +144,7 @@ export default function PanelPage() {
             return (
                 <div className="text-center py-16 min-h-[300px]">
                     <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No members found in the "{categories.find(c => c.key === activeCategory)?.label}" category.</p>
+                    <p className="text-gray-500">No members found in the &quot;{categories.find(c => c.key === activeCategory)?.label}&quot; category.</p>
                 </div>
             );
         }

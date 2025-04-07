@@ -44,7 +44,6 @@ const DialogContent = React.forwardRef<
   scrollable = false, 
   ...props 
 }, ref) => {
-  const contentRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <DialogPortal>

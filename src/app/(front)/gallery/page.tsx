@@ -1,86 +1,120 @@
+// src/app/(front)/gallery/page.tsx
 'use client'
 
 import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import Image from "next/image"; // Component from next/image
+import React, { useEffect, useState } from "react";
 import { Camera, CalendarIcon, ArrowRight, ImageIcon, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Dialog, 
+import {
+  Dialog,
   DialogContent,
-  DialogTrigger,
+  // DialogTrigger, // <--- No longer needed inside the loop
   DialogTitle,
-  DialogDescription
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Fade, Zoom } from "react-awesome-reveal";
-import { Image as ImageType, Result } from "@/lib/types";
+import { Image as ImageType, Result } from "@/lib/types"; // Type aliased to ImageType
 
 export default function GalleryPage() {
   const [galleryData, setGalleryData] = useState<{ [year: string]: ImageType[] }>({});
   const [years, setYears] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<ImageType | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchGallery = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/club/gallery/`);
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/club/gallery/`;
+        const res = await fetch(apiUrl);
+        if (!res.ok) {
+          throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+        }
         const data = await res.json() as Result & { results: ImageType[] };
-        
-        // Group images by year
+        if (!Array.isArray(data.results)) {
+          throw new Error("Invalid data structure received from API.");
+        }
+
         const grouped = data.results.reduce<Record<string, ImageType[]>>((acc, image) => {
-          const year = new Date(image.event_date).getFullYear().toString();
+          const eventDate = image.event_date ? new Date(image.event_date) : new Date();
+          const year = eventDate.getFullYear().toString();
           if (!acc[year]) acc[year] = [];
           acc[year].push(image);
           return acc;
         }, {});
-        
-        // Sort years in descending order
+
         const sortedYears = Object.keys(grouped).sort((a, b) => parseInt(b) - parseInt(a));
-        
         setGalleryData(grouped);
         setYears(sortedYears);
       } catch (error) {
         console.error("Error fetching gallery data:", error);
+        setError(error instanceof Error ? error.message : "An unknown error occurred");
+        setGalleryData({});
+        setYears([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchGallery();
   }, []);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setSelectedImage(null);
+    }
+  };
+
+  // Helper function to open dialog (sets state)
+  const openDialogWithImage = (image: ImageType) => {
+    setSelectedImage(image);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white py-16 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
         {/* Header Section */}
         <Fade triggerOnce cascade damping={0.1}>
-          <div className="text-center mb-12 md:mb-16">
-            <span className="inline-flex items-center bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-medium mb-4">
-              <Camera className="w-4 h-4 mr-2" />
-              <span>Photo Gallery</span>
-            </span>
-            
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800">
-              Moments <span className="text-primary">Captured</span>
-            </h1>
-            
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Explore our visual journey through coding workshops, competitions, and community events. 
-              These images capture the essence of our programming club's activities over the years.
-            </p>
-          </div>
-        </Fade>
+           <div className="text-center mb-12 md:mb-16">
+             <span className="inline-flex items-center bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-medium mb-4">
+               <Camera className="w-4 h-4 mr-2" />
+               <span>Photo Gallery</span>
+             </span>
+             <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-800">
+               Moments <span className="text-primary">Captured</span>
+             </h1>
+             <p className="text-gray-600 max-w-2xl mx-auto">
+               Explore our visual journey through coding workshops, competitions, and community events.
+               These images capture the essence of our programming club&apos;s activities over the years.
+             </p>
+           </div>
+         </Fade>
 
         {/* Loading State */}
-        {loading ? (
+        {loading && (
           <div className="flex flex-col items-center justify-center py-16">
             <RefreshCw className="animate-spin h-10 w-10 text-primary mb-4" />
             <p className="text-gray-500">Loading gallery...</p>
           </div>
-        ) : years.length === 0 ? (
+        )}
+
+        {/* Error State */}
+        {!loading && error && (
+             <div className="flex flex-col items-center justify-center py-16 text-center bg-red-50 border border-red-200 rounded-lg">
+                 <ImageIcon className="h-12 w-12 text-red-400 mb-4" />
+                 <h3 className="text-xl font-medium text-red-700 mb-2">Failed to Load Gallery</h3>
+                 <p className="text-red-600 text-sm max-w-md mb-4">{error}</p>
+                 <Button onClick={() => window.location.reload()} variant="destructive" size="sm">
+                    Try Again
+                 </Button>
+             </div>
+         )}
+
+        {/* Empty State */}
+        {!loading && !error && years.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-xl border border-gray-100">
             <ImageIcon className="h-16 w-16 text-gray-300 mb-4" />
             <h3 className="text-xl font-medium text-gray-700 mb-2">No Images Available</h3>
@@ -88,128 +122,111 @@ export default function GalleryPage() {
               Our gallery is currently empty. Please check back later for updates.
             </p>
           </div>
-        ) : (
-          /* Gallery Content */
+        )}
+
+        {/* Gallery Content */}
+        {!loading && !error && years.length > 0 && (
           <div className="space-y-20">
             {years.map((year) => (
               <div key={year} className="relative">
-                {/* Year Badge with View All button */}
+                {/* Year Badge and View All button */}
                 <div className="relative flex justify-between items-center border-b border-gray-200 mb-8 mt-12 pb-2">
-                  <div className="flex items-center">
-                    <Badge variant="outline" className="bg-white border-primary/30 shadow-sm px-3 py-1.5 text-base font-bold">
-                      <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
-                      {year}
-                    </Badge>
-                  </div>
-                  
-                  <Button asChild variant="outline" size="sm" className="border-primary/30 hover:bg-primary/5">
-                    <Link href={`/gallery/${year}`} className="flex items-center text-xs md:text-sm">
-                      View All
-                      <ArrowRight className="ml-2 h-3 w-3 md:h-4 md:w-4" />
-                    </Link>
-                  </Button>
-                </div>
-                
-                {/* Gallery Grid */}
+                   <div className="flex items-center">
+                     <Badge variant="outline" className="bg-white border-primary/30 shadow-sm px-3 py-1.5 text-base font-bold">
+                       <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
+                       {year}
+                     </Badge>
+                   </div>
+                   <Button asChild variant="outline" size="sm" className="border-primary/30 hover:bg-primary/5">
+                     <Link href={`/gallery/${year}`} className="flex items-center text-xs md:text-sm">
+                       View All ({galleryData[year]?.length || 0})
+                       <ArrowRight className="ml-2 h-3 w-3 md:h-4 md:w-4" />
+                     </Link>
+                   </Button>
+                 </div>
+
+                {/* Gallery Grid - Uses simple clickable elements */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
-                  {galleryData[year].slice(0, 4).map((image, index) => (
+                  {galleryData[year]?.slice(0, 4).map((image, index) => (
                     <Zoom key={image.id} delay={index * 50} duration={500} triggerOnce>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <div 
-                            className="group aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer relative shadow-md hover:shadow-xl transition-all duration-300"
-                            onClick={() => setSelectedImage(image)}
-                          >
-                            <Image 
-                              src={image.image} 
-                              alt={image.title} 
-                              fill
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                              className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                            
-                            {/* Overlay with title */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">
-                              <h3 className="text-white font-medium line-clamp-2 text-sm">
-                                {image.title}
-                              </h3>
-                            </div>
-                          </div>
-                        </DialogTrigger>
-                        
-                        {/* Image Modal */}
-                        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white border-none rounded-xl shadow-2xl sm:w-[90vw] md:w-[85vw] lg:w-[80vw] max-h-[90vh]">
-                          <DialogTitle className="sr-only">{image.title}</DialogTitle>
-                          <DialogDescription className="sr-only">
-                            {image.description || `View image of ${image.title}`}
-                          </DialogDescription>
-                          <div className="relative overflow-hidden max-h-[90vh]">
-                            {/* Image container with adjusted aspect ratio */}
-                            <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-video w-full bg-gray-100 flex items-center justify-center">
-                              <Image
-                                src={image.image}
-                                alt={image.title}
-                                fill
-                                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 85vw, 80vw"
-                                className="object-contain"
-                                priority
-                                quality={100}
-                              />
-                            </div>
-                            
-                            {/* Content area - reduced height */}
-                            <div className="p-4 md:p-5 border-t border-gray-100 max-h-[25vh] overflow-auto">
-                              <div className="flex flex-col lg:flex-row lg:items-start gap-2">
-                                <div className="flex-1 overflow-hidden">
-                                  <div className="lg:flex lg:items-center lg:justify-between lg:mb-2">
-                                    <h3 className="text-lg md:text-xl font-bold text-primary lg:max-w-[80%] truncate">
-                                      {image.title}
-                                    </h3>
-                                    
-                                    {/* Date badge for desktop, repositioned */}
-                                    <div className="hidden lg:flex px-3 py-1 bg-primary/5 rounded-lg text-sm text-gray-600 items-center flex-shrink-0">
-                                      <CalendarIcon className="w-3 h-3 mr-2 text-primary" />
-                                      {new Date(image.event_date).toLocaleDateString('en-US', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                      })}
-                                    </div>
-                                  </div>
-                                  
-                                  {/* Description with reduced max height */}
-                                  {image.description && (
-                                    <div className="mt-2 text-gray-600 text-sm">
-                                      <div className="max-h-16 lg:max-h-24 overflow-y-auto pr-3 break-words">
-                                        {image.description}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              {/* Mobile and tablet date display */}
-                              <div className="lg:hidden mt-2 text-xs text-gray-500 flex items-center">
-                                <CalendarIcon className="w-3 h-3 mr-1" />
-                                {new Date(image.event_date).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      {/* Use a div or button as the clickable element */}
+                      {/* REMOVED DialogTrigger */}
+                      <div
+                        className="group aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer relative shadow-md hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50" // Added focus styles
+                        // Call helper function onClick
+                        onClick={() => openDialogWithImage(image)}
+                        role="button" // Accessibility
+                        tabIndex={0} // Accessibility: Make it focusable
+                        // Accessibility: Allow activation with Enter/Space
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDialogWithImage(image); } }}
+                      >
+                        <Image
+                          src={image.image}
+                          alt={image.title || 'Gallery image thumbnail'}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none" // Prevent image stealing focus/clicks
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end pointer-events-none"> {/* // pointer-events-none */}
+                          <h3 className="text-white font-medium line-clamp-2 text-sm">
+                            {image.title}
+                          </h3>
+                        </div>
+                      </div>
                     </Zoom>
                   ))}
                 </div>
-                
-                {/* View All Button - removed as it's now at the top */}
               </div>
             ))}
           </div>
         )}
+
+        {/* Single Dialog Instance - Controlled by state */}
+        <Dialog open={!!selectedImage} onOpenChange={handleOpenChange}>
+          <DialogContent className="max-w-4xl w-[95vw] sm:w-[90vw] md:w-[85vw] lg:w-[80vw] p-0 overflow-hidden bg-white border-none rounded-xl shadow-2xl max-h-[90vh] flex flex-col">
+            {selectedImage && ( // Render content only if an image is selected
+              <>
+                <DialogTitle className="sr-only">{selectedImage.title}</DialogTitle>
+                <DialogDescription className="sr-only">
+                  {selectedImage.description || `View image of ${selectedImage.title} taken on ${new Date(selectedImage.event_date).toLocaleDateString()}`}
+                </DialogDescription>
+                {/* Image display area */}
+                <div className="relative w-full h-[60vh] sm:h-[65vh] md:h-[70vh] bg-gray-100 flex items-center justify-center overflow-hidden">
+                  <Image
+                    src={selectedImage.image}
+                    alt={selectedImage.title || 'Gallery image details'}
+                    fill
+                    sizes="95vw"
+                    className="object-contain"
+                    priority
+                    quality={90}
+                  />
+                </div>
+                {/* Content area below image */}
+                <div className="p-4 md:p-6 border-t border-gray-200 flex-shrink-0 overflow-y-auto max-h-[30vh]">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-1 sm:mb-0 break-words">
+                      {selectedImage.title}
+                    </h3>
+                    {selectedImage.event_date && (
+                      <div className="flex-shrink-0 px-3 py-1 bg-gray-100 rounded-full text-xs sm:text-sm text-gray-600 items-center inline-flex">
+                        <CalendarIcon className="w-3 h-3 mr-1.5 text-gray-500" />
+                        {new Date(selectedImage.event_date).toLocaleDateString('en-US', {
+                          year: 'numeric', month: 'short', day: 'numeric'
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  {selectedImage.description && (
+                    <p className="mt-2 text-gray-600 text-sm break-words">
+                      {selectedImage.description}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ import { ArrowLeft, Calendar, RefreshCw, ImageIcon, ChevronLeft, ChevronRight } 
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Image as ImageType, Result } from "@/lib/types";
-import { Fade, Zoom } from "react-awesome-reveal";
+import { Fade } from "react-awesome-reveal";
 
 export default function YearGalleryPage({ params }: { params: Promise<{ year: string }> }) {
   const unwrappedParams = use(params);
