@@ -139,7 +139,7 @@ export default function YearGalleryPage({ params }: { params: Promise<{ year: st
                   </DialogTrigger>
                   
                   {/* Image Lightbox Modal */}
-                  <DialogContent className="max-w-6xl p-0 overflow-hidden bg-white border-none rounded-xl shadow-2xl sm:w-[95vw] w-[90vw]">
+                  <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-none rounded-xl shadow-2xl sm:w-[90vw] md:w-[85vw] lg:w-[80vw] max-h-[90vh]">
                     {currentImageIndex !== null && (
                       <>
                         <DialogTitle className="sr-only">{images[currentImageIndex].title}</DialogTitle>
@@ -149,30 +149,30 @@ export default function YearGalleryPage({ params }: { params: Promise<{ year: st
                       </>
                     )}
                     
-                    <div className="relative overflow-hidden">
-                      <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-[16/9] w-full bg-gray-100 flex items-center justify-center">
+                    <div className="relative overflow-hidden max-h-[90vh]">
+                      <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-video w-full bg-gray-100 flex items-center justify-center">
                         {currentImageIndex !== null && (
                           <>
                             <Image
                               src={images[currentImageIndex].image}
                               alt={images[currentImageIndex].title}
                               fill
-                              sizes="(max-width: 640px) 95vw, (max-width: 1024px) 90vw, 85vw"
+                              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 85vw, 80vw"
                               className="object-contain"
                               priority
                               quality={95}
                             />
                             
-                            {/* Navigation buttons with improved accessibility and design */}
-                            <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-2 sm:px-5">
+                            {/* Navigation buttons with smaller size */}
+                            <div className="absolute inset-0 flex items-center justify-between pointer-events-none px-2 sm:px-4">
                               <div className="pointer-events-auto">
                                 {currentImageIndex > 0 && (
                                   <button 
                                     onClick={handlePrevImage}
-                                    className="bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl rounded-full p-2 sm:p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                    className="bg-white/90 hover:bg-white text-primary shadow-md hover:shadow-lg rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
                                     aria-label="Previous image"
                                   >
-                                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                                    <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                                   </button>
                                 )}
                               </div>
@@ -181,19 +181,19 @@ export default function YearGalleryPage({ params }: { params: Promise<{ year: st
                                 {currentImageIndex < images.length - 1 && (
                                   <button 
                                     onClick={handleNextImage}
-                                    className="bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl rounded-full p-2 sm:p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                    className="bg-white/90 hover:bg-white text-primary shadow-md hover:shadow-lg rounded-full p-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
                                     aria-label="Next image"
                                   >
-                                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                                   </button>
                                 )}
                               </div>
                             </div>
                             
-                            {/* Progress indicators - at the bottom */}
-                            <div className="absolute bottom-4 inset-x-0">
+                            {/* Progress indicators - smaller size */}
+                            <div className="absolute bottom-3 inset-x-0">
                               <div className="flex justify-center items-center">
-                                <div className="bg-white/90 text-primary font-medium text-xs sm:text-sm px-3 py-1.5 rounded-full shadow-md backdrop-blur-sm">
+                                <div className="bg-white/90 text-primary font-medium text-xs px-2 py-1 rounded-full shadow-md backdrop-blur-sm">
                                   {currentImageIndex + 1} of {images.length}
                                 </div>
                               </div>
@@ -202,40 +202,48 @@ export default function YearGalleryPage({ params }: { params: Promise<{ year: st
                         )}
                       </div>
                       
-                      {/* Modern image details section */}
+                      {/* Modern image details section with reduced height */}
                       {currentImageIndex !== null && (
-                        <div className="p-5 sm:p-6 border-t border-gray-100">
-                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                            <div className="flex-1">
-                              <h3 className="text-xl md:text-2xl font-semibold text-primary">
-                                {images[currentImageIndex].title}
-                              </h3>
+                        <div className="p-4 md:p-5 border-t border-gray-100 max-h-[25vh] overflow-auto">
+                          <div className="flex flex-col lg:flex-row lg:items-start gap-2">
+                            <div className="flex-1 overflow-hidden">
+                              <div className="lg:flex lg:items-center lg:justify-between lg:mb-2">
+                                <h3 className="text-lg md:text-xl font-bold text-primary lg:max-w-[75%] truncate">
+                                  {images[currentImageIndex].title}
+                                </h3>
+                                
+                                {/* Desktop date badge, repositioned and smaller */}
+                                <div className="hidden lg:flex px-3 py-1 bg-primary/5 rounded-lg text-xs text-gray-600 items-center flex-shrink-0">
+                                  <Calendar className="w-3 h-3 mr-1 text-primary" />
+                                  {new Date(images[currentImageIndex].event_date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  })}
+                                </div>
+                              </div>
+                              
+                              {/* Description with reduced max height */}
                               {images[currentImageIndex].description && (
-                                <p className="mt-2 text-gray-600 text-sm md:text-base">
-                                  {images[currentImageIndex].description}
-                                </p>
+                                <div className="relative mt-2">
+                                  <div className="max-h-16 lg:max-h-24 overflow-y-auto pr-3">
+                                    <p className="text-gray-600 text-xs md:text-sm break-words leading-relaxed">
+                                      {images[currentImageIndex].description}
+                                    </p>
+                                  </div>
+                                </div>
                               )}
                             </div>
-                            
-                            {/* Date badge */}
-                            <div className="hidden md:flex px-4 py-2 bg-primary/5 rounded-lg text-sm text-gray-600 items-center self-start">
-                              <Calendar className="w-4 h-4 mr-2 text-primary" />
-                              {new Date(images[currentImageIndex].event_date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
-                            </div>
-                            
-                            {/* Mobile date display */}
-                            <div className="md:hidden text-xs text-gray-500 flex items-center">
-                              <Calendar className="w-3 h-3 mr-1" />
-                              {new Date(images[currentImageIndex].event_date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
-                            </div>
+                          </div>
+                          
+                          {/* Mobile and tablet date display */}
+                          <div className="lg:hidden mt-2 text-xs text-gray-500 flex items-center">
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {new Date(images[currentImageIndex].event_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
                           </div>
                         </div>
                       )}

@@ -138,46 +138,58 @@ export default function GalleryPage() {
                         </DialogTrigger>
                         
                         {/* Image Modal */}
-                        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-white border-none rounded-xl shadow-2xl sm:w-[95vw] w-[90vw]">
+                        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white border-none rounded-xl shadow-2xl sm:w-[90vw] md:w-[85vw] lg:w-[80vw] max-h-[90vh]">
                           <DialogTitle className="sr-only">{image.title}</DialogTitle>
                           <DialogDescription className="sr-only">
                             {image.description || `View image of ${image.title}`}
                           </DialogDescription>
-                          <div className="relative overflow-hidden">
-                            {/* Image container with responsive aspect ratio */}
-                            <div className="relative aspect-square md:aspect-[4/3] lg:aspect-[16/9] w-full bg-gray-100 flex items-center justify-center">
+                          <div className="relative overflow-hidden max-h-[90vh]">
+                            {/* Image container with adjusted aspect ratio */}
+                            <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-video w-full bg-gray-100 flex items-center justify-center">
                               <Image
                                 src={image.image}
                                 alt={image.title}
                                 fill
-                                sizes="(max-width: 640px) 95vw, (max-width: 1024px) 90vw, 85vw"
+                                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 85vw, 80vw"
                                 className="object-contain"
                                 priority
-                                quality={95}
+                                quality={100}
                               />
                             </div>
                             
-                            {/* Content area */}
-                            <div className="p-5 md:p-6 border-t border-gray-100">
-                              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                                <div className="flex-1">
-                                  <h3 className="text-xl md:text-2xl font-semibold text-primary">{image.title}</h3>
+                            {/* Content area - reduced height */}
+                            <div className="p-4 md:p-5 border-t border-gray-100 max-h-[25vh] overflow-auto">
+                              <div className="flex flex-col lg:flex-row lg:items-start gap-2">
+                                <div className="flex-1 overflow-hidden">
+                                  <div className="lg:flex lg:items-center lg:justify-between lg:mb-2">
+                                    <h3 className="text-lg md:text-xl font-bold text-primary lg:max-w-[80%] truncate">
+                                      {image.title}
+                                    </h3>
+                                    
+                                    {/* Date badge for desktop, repositioned */}
+                                    <div className="hidden lg:flex px-3 py-1 bg-primary/5 rounded-lg text-sm text-gray-600 items-center flex-shrink-0">
+                                      <CalendarIcon className="w-3 h-3 mr-2 text-primary" />
+                                      {new Date(image.event_date).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                      })}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Description with reduced max height */}
                                   {image.description && (
-                                    <p className="mt-2 text-gray-600 text-sm md:text-base">{image.description}</p>
+                                    <div className="mt-2 text-gray-600 text-sm">
+                                      <div className="max-h-16 lg:max-h-24 overflow-y-auto pr-3 break-words">
+                                        {image.description}
+                                      </div>
+                                    </div>
                                   )}
-                                </div>
-                                <div className="hidden md:flex px-4 py-2 bg-primary/5 rounded-lg text-sm text-gray-600 items-center self-start">
-                                  <CalendarIcon className="w-4 h-4 mr-2 text-primary" />
-                                  {new Date(image.event_date).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  })}
                                 </div>
                               </div>
                               
-                              {/* Mobile date display */}
-                              <div className="md:hidden mt-4 text-xs text-gray-500 flex items-center">
+                              {/* Mobile and tablet date display */}
+                              <div className="lg:hidden mt-2 text-xs text-gray-500 flex items-center">
                                 <CalendarIcon className="w-3 h-3 mr-1" />
                                 {new Date(image.event_date).toLocaleDateString('en-US', {
                                   year: 'numeric',
