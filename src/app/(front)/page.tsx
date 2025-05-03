@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <Hero/>
       <MissionVision/>
-      <Gallery/>
+      <Gallery isHomePage={true}/>
       <Contact/>
     </>
   );

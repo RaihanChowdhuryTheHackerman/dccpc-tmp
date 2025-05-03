@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, RefreshCw, ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Image as ImageType, Result } from "@/lib/types";
+import { Image as ImageType } from "@/lib/types";
 import { Fade } from "react-awesome-reveal";
 
 export default function YearGalleryPage({ params }: { params: Promise<{ year: string }> }) {
@@ -22,9 +22,22 @@ export default function YearGalleryPage({ params }: { params: Promise<{ year: st
     const fetchImages = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/club/gallery/?year=${year}`);
-        const data = await res.json() as Result & { results: ImageType[] };
-        setImages(data.results);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/club/gallery/?year=${year}&page_size=1000`);
+        const data = await res.json();
+        
+        // Handle both paginated and non-paginated responses
+        let imageResults: ImageType[];
+        if (Array.isArray(data)) {
+          // Non-paginated response (direct array)
+          imageResults = data;
+        } else if (data.results && Array.isArray(data.results)) {
+          // Paginated response (object with results array)
+          imageResults = data.results;
+        } else {
+          throw new Error("Invalid data structure received from API.");
+        }
+        
+        setImages(imageResults);
       } catch (error) {
         console.error("Error fetching gallery data:", error);
       } finally {

@@ -16,31 +16,44 @@ interface Image {
   updated_at: string;
 }
 
-interface Result {
-  next: string | null;
-  previous: string | null;
-  count: number;
-  results: Image[];
+interface GalleryProps {
+  isHomePage?: boolean;
 }
 
-export default function Gallery() {
+export default function Gallery({ isHomePage = true }: GalleryProps) {
   const [images, setImages] = useState<Image[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/club/gallery/`)
+    // Use the home-gallery endpoint when on the homepage, otherwise use the regular gallery endpoint
+    const endpoint = isHomePage 
+      ? `${process.env.NEXT_PUBLIC_API_URL}/club/home-gallery/`
+      : `${process.env.NEXT_PUBLIC_API_URL}/club/gallery/`;
+      
+    fetch(endpoint)
       .then(res => res.json())
       .then(data => {
-        const result = data as Result;
-        setImages(result.results);
+        // Handle both paginated and non-paginated responses
+        let imageResults: Image[];
+        if (Array.isArray(data)) {
+          // Non-paginated response (direct array)
+          imageResults = data;
+        } else if (data.results && Array.isArray(data.results)) {
+          // Paginated response (object with results array)
+          imageResults = data.results;
+        } else {
+          throw new Error("Invalid data structure received from API.");
+        }
+        
+        setImages(imageResults);
         setLoading(false);
       })
       .catch(error => {
         console.log(error);
         setLoading(false);
       });
-  }, []);
+  }, [isHomePage]);
 
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50">

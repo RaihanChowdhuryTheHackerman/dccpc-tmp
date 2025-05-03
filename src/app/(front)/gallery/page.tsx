@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { Camera, CalendarIcon, ArrowRight, ImageIcon, RefreshCw } from "lucide-react";
+import { Camera, CalendarIcon, ArrowRight, ImageIcon, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,7 +13,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Fade, Zoom } from "react-awesome-reveal";
-import { Image as ImageType, Result } from "@/lib/types";
+import { Image as ImageType } from "@/lib/types";
+
+const YEARS_PER_PAGE = 8;
 
 export default function GalleryPage() {
   const [galleryData, setGalleryData] = useState<{ [year: string]: ImageType[] }>({});
@@ -21,23 +23,36 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<ImageType | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchGallery = async () => {
       setLoading(true);
       setError(null);
       try {
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/club/gallery/`;
+        // Request all images by setting a large page size
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/club/gallery/?page_size=1000`;
         const res = await fetch(apiUrl);
         if (!res.ok) {
           throw new Error(`API request failed: ${res.status} ${res.statusText}`);
         }
-        const data = await res.json() as Result & { results: ImageType[] };
-        if (!Array.isArray(data.results)) {
+        const data = await res.json();
+        
+        // Handle both paginated and non-paginated responses
+        let imageResults: ImageType[];
+        if (Array.isArray(data)) {
+          // Non-paginated response (direct array)
+          imageResults = data;
+        } else if (data.results && Array.isArray(data.results)) {
+          // Paginated response (object with results array)
+          imageResults = data.results;
+        } else {
           throw new Error("Invalid data structure received from API.");
         }
 
-        const grouped = data.results.reduce<Record<string, ImageType[]>>((acc, image) => {
+        console.log("Total images received:", imageResults.length);
+        
+        const grouped = imageResults.reduce<Record<string, ImageType[]>>((acc, image) => {
           const eventDate = image.event_date ? new Date(image.event_date) : new Date();
           const year = eventDate.getFullYear().toString();
           if (!acc[year]) acc[year] = [];
@@ -46,6 +61,7 @@ export default function GalleryPage() {
         }, {});
 
         const sortedYears = Object.keys(grouped).sort((a, b) => parseInt(b) - parseInt(a));
+        
         setGalleryData(grouped);
         setYears(sortedYears);
       } catch (error) {
@@ -69,6 +85,19 @@ export default function GalleryPage() {
   // Helper function to open dialog (sets state)
   const openDialogWithImage = (image: ImageType) => {
     setSelectedImage(image);
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(years.length / YEARS_PER_PAGE);
+  const startIndex = (currentPage - 1) * YEARS_PER_PAGE;
+  const visibleYears = years.slice(startIndex, startIndex + YEARS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Scroll to top of the gallery section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -122,10 +151,19 @@ export default function GalleryPage() {
           </div>
         )}
 
-        {/* Gallery Content */}
+        {/* Pagination Info */}
         {!loading && !error && years.length > 0 && (
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-sm text-gray-500">
+              Showing years {startIndex + 1}-{Math.min(startIndex + YEARS_PER_PAGE, years.length)} of {years.length}
+            </p>
+          </div>
+        )}
+
+        {/* Gallery Content */}
+        {!loading && !error && visibleYears.length > 0 && (
           <div className="space-y-20">
-            {years.map((year) => (
+            {visibleYears.map((year) => (
               <div key={year} className="relative">
                 {/* Year Badge and View All button */}
                 <div className="relative flex justify-between items-center border-b border-gray-200 mb-8 mt-12 pb-2">
@@ -176,6 +214,47 @@ export default function GalleryPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {!loading && !error && totalPages > 1 && (
+          <div className="flex justify-center items-center mt-12 space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 h-auto"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <Button
+                  key={page}
+                  variant={page === currentPage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => goToPage(page)}
+                  className={`h-8 w-8 p-0 ${page === currentPage ? 'bg-primary text-white' : 'text-gray-600'}`}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 h-auto"
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
         )}
 
