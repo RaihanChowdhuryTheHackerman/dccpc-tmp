@@ -18,7 +18,7 @@ export const MembershipSchema = z.object({
   address: z.string().min(1, {message: "Please enter your address"}).max(255),
   education: z.string(),
   batch: z.coerce.number().min(1, {message: "Please enter a valid batch number"}),
-  roll: z.coerce.number().min(1, {message: "Please enter a valid roll number"}).max(255),
+  roll: z.coerce.number().min(1, {message: "Please enter a valid roll number"}),
   problem_solving_experience: z.string().min(1, {message: "Please enter a problem solving experience"}),
   expectation: z.string().min(1, {message: "Please enter what you expect from the club"}),
   facebook: z.string().nullable(),
